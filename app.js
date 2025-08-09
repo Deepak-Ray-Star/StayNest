@@ -16,6 +16,10 @@ const flash = require("connect-flash");
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
 const User = require("./models/user.js");
+const Booking = require("./models/booking.js"); // ✅ Import Booking model
+
+const bookingRoutes = require("./routes/bookings.js");
+
 
 const listingRouter = require("./routes/listing.js");
 const reviewRouter = require("./routes/review.js");
@@ -71,9 +75,9 @@ let sessionOptions = {
     },
 };
 
-app.get("/", (req, res)=>{
-    res.render("listings/show.ejs");
-});
+// app.get("/", (req, res)=>{
+//     res.render("listings/show.ejs");
+// });
 
 app.use(session(sessionOptions));
 app.use(flash());
@@ -92,9 +96,28 @@ app.use((req,res,next)=>{
     next();
 });
 
+// ✅ Auto-delete expired bookings
+async function cleanupOldBookings() {
+    try {
+        const result = await Booking.deleteMany({ endDate: { $lt: new Date() } });
+        if (result.deletedCount > 0) {
+            console.log(`🗑 Deleted ${result.deletedCount} expired bookings`);
+        }
+    } catch (err) {
+        console.error("Error deleting old bookings:", err);
+    }
+}
+
+// Run cleanup on server start
+cleanupOldBookings();
+
+// Run cleanup every 24 hours
+setInterval(cleanupOldBookings, 24 * 60 * 60 * 1000);
+
 app.use("/listings", listingRouter);
 app.use("/listings/:id/reviews", reviewRouter);
 app.use("/", userRouter);
+app.use("/bookings", bookingRoutes);
 
 
 app.all("*", (req, res, next)=>{

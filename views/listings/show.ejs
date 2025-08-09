@@ -86,8 +86,55 @@
             <% } %>
         </div>
         <% } %>
+        <div>
+
+        <hr>
+
+       <h3>Booking Available Here</h3>
+<form action="/bookings" method="POST" class="mt-3 mb-3">
+    <input type="hidden" name="listingId" value="<%= listing._id %>">
+
+    <label>Start Date:</label>
+    <input type="date" name="startDate" id="startDate" required>
+    &nbsp;&nbsp;&nbsp;&nbsp;
+    <label>End Date:</label>
+    <input type="date" name="endDate" id="endDate" required>
+    &nbsp;&nbsp;&nbsp;&nbsp;
+    <button type="submit">Book Now</button>
+</form>
+
+        
+        <h4>📅 Booked Dates:</h4>
+
+<% if (bookings.length > 0) { %>
+    <ul>
+        <% bookings.forEach(booking => { %>
+            <li>
+                <strong>
+                    <%= booking.startDate.toDateString() %> ➝ <%= booking.endDate.toDateString() %>
+                </strong>
+            </li>
+        <% }) %>
+    </ul>
+<% } else { %>
+    <p>No bookings yet for this listing. 🎉</p>
+<% } %>
+
+        </div>
     </div>
-    
-    
 </div>
 
+<script>
+    // Prevent selection of past dates
+    const today = new Date().toISOString().split("T")[0];
+    const startDateInput = document.getElementById("startDate");
+    const endDateInput = document.getElementById("endDate");
+
+    startDateInput.setAttribute("min", today);
+    endDateInput.setAttribute("min", today);
+
+    // Set min end date dynamically based on start date
+    startDateInput.addEventListener("change", function () {
+        endDateInput.setAttribute("min", this.value);
+    });
+</script>
