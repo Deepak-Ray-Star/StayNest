@@ -2,31 +2,21 @@ const Listing = require("../models/listing")
 const Booking = require("../models/booking.js");
 
 module.exports.index = async(req, res)=>{
-    const allListings = await Listing.find({});
-    res.render("listings/index.ejs",{allListings});
+    const { location } = req.query;
+
+    let filter = {}; // returns all listings if not searching any location
+    if (location) {
+        filter.location = { $regex: location, $options: "i" }; // case-insensitive
+    }
+
+    const allListings = await Listing.find(filter);
+    res.render("listings/index.ejs", { allListings, location: location || "" });
 };
 
 module.exports.renderNewForm = async(req, res)=>{
     res.render("listings/new.ejs");
 };
 
-// module.exports.showListing = async(req, res)=>{
-//     let {id} = req.params;
-//     const listing = await Listing.findById(id)
-//         .populate({
-//             path:"reviews",
-//             populate:{ 
-//                 path:"author",
-//             },
-//         })
-//         .populate("owner");
-//     if(!listing){
-//         req.flash("error", "Listing you requested does not exist!");
-//         res.redirect("/listings");
-//     }
-//     console.log(listing);
-//     res.render("listings/show.ejs", {listing});
-// };
 
 
 module.exports.showListing = async(req, res)=>{
