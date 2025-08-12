@@ -16,7 +16,7 @@ const flash = require("connect-flash");
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
 const User = require("./models/user.js");
-const Booking = require("./models/booking.js"); // ✅ Import Booking model
+const Booking = require("./models/booking.js"); 
 
 const bookingRoutes = require("./routes/bookings.js");
 
@@ -96,7 +96,7 @@ app.use((req,res,next)=>{
     next();
 });
 
-// ✅ Auto-delete expired bookings
+//  Auto-delete expired bookings
 async function cleanupOldBookings() {
     try {
         const result = await Booking.deleteMany({ endDate: { $lt: new Date() } });
